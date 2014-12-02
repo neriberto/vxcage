@@ -36,6 +36,9 @@ from database import Database
 from utils import jsonize, store_sample, get_sample_path
 
 db = Database()
+server_ip = "localhost"
+server_port = "8080"
+
 
 @route("/test", method="GET")
 def test():
@@ -47,7 +50,8 @@ def add_malware():
     data = request.files.file
     info = File(file_path=store_sample(data.file.read()))
 
-    db.add(obj=info, file_name=data.filename, tags=tags)
+    db.add(obj=info, file_name=data.filename, server_ip=server_ip,
+            server_port=server_port, tags=tags)
 
     return jsonize({"message" : "added"})
 
@@ -140,5 +144,6 @@ if __name__ == "__main__":
     parser.add_argument("-H", "--host", help="Host to bind the API server on", default="localhost", action="store", required=False)
     parser.add_argument("-p", "--port", help="Port to bind the API server on", default=8080, action="store", required=False)
     args = parser.parse_args()
-
+    server_ip = args.host
+    server_port = args.port
     run(host=args.host, port=args.port)

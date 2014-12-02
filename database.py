@@ -51,6 +51,8 @@ class Malware(Base):
     sha256 = Column(String(64), nullable=False, index=True)
     sha512 = Column(String(128), nullable=False)
     ssdeep = Column(String(255), nullable=True)
+    server_ip = Column(String(15), nullable=False)
+    server_port = Column(String(5), nullable=False)
     created_at = Column(DateTime(timezone=False), default=datetime.now(), nullable=False)
     tag = relationship("Tag",
                        secondary=association_table,
@@ -81,6 +83,8 @@ class Malware(Base):
                  sha256,
                  sha512,
                  file_size,
+                 server_ip,
+                 server_port,
                  file_type=None,
                  ssdeep=None,
                  file_name=None):
@@ -93,6 +97,8 @@ class Malware(Base):
         self.file_type = file_type
         self.ssdeep = ssdeep
         self.file_name = file_name
+        self.server_ip = server_ip
+        self.server_port = server_port
 
 class Tag(Base):
     __tablename__ = "tag"
@@ -136,7 +142,7 @@ class Database:
     def __del__(self):
         self.engine.dispose()
 
-    def add(self, obj, file_name, tags=None):
+    def add(self, obj, file_name, server_ip, server_port, tags=None):
         session = self.Session()
 
         if isinstance(obj, File):
@@ -149,6 +155,8 @@ class Database:
                                         file_size=obj.get_size(),
                                         file_type=obj.get_type(),
                                         ssdeep=obj.get_ssdeep(),
+                                        server_ip = server_ip,
+                                        server_port = server_port,
                                         file_name=file_name)
                 session.add(malware_entry)
                 session.commit()
