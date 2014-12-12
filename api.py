@@ -50,10 +50,13 @@ def add_malware():
     data = request.files.file
     info = File(file_path=store_sample(data.file.read()))
 
-    db.add(obj=info, file_name=data.filename, server_ip=server_ip,
+    res = db.add(obj=info, file_name=data.filename, server_ip=server_ip,
             server_port=server_port, tags=tags)
 
-    return jsonize({"message" : "added"})
+    if res:
+        return jsonize({"message" : "added"})
+    else:
+        return jsonize({"message" : "aborted"})
 
 @route("/malware/get/<sha256>", method="GET")
 def get_malware(sha256):
